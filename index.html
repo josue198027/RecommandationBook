@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookRecommandation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0c0e14;--card:#151926;--card-h:#1c2138;--bdr:rgba(255,255,255,0.05);--bdr-a:rgba(139,92,246,0.25);--txt:#e2e4ec;--dim:#6b7094;--acc:#8b5cf6;--acc-s:rgba(139,92,246,0.1);--grn:#34d399;--org:#fb923c;--shd:0 4px 24px rgba(0,0,0,0.35);--rad:14px}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(160deg,#0c0e14,#111525,#0c0e14);color:var(--txt);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 16px rgba(139,92,246,0.2)}50%{box-shadow:0 0 32px rgba(139,92,246,0.35)}}
+.au{animation:fadeUp .55s cubic-bezier(.23,1,.32,1) both}
+.d1{animation-delay:60ms}.d2{animation-delay:120ms}.d3{animation-delay:180ms}.d4{animation-delay:240ms}.d5{animation-delay:300ms}.d6{animation-delay:360ms}
+.wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+header{padding:28px 0 0;border-bottom:1px solid var(--bdr);background:linear-gradient(180deg,rgba(139,92,246,0.05),transparent)}
+.hdr{display:flex;align-items:center;gap:14px}
+.logo{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:21px;animation:pulse 3s ease infinite;flex-shrink:0}
+.ltxt h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,#e2e4ec,#8b8fad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ltxt p{font-size:11px;color:var(--dim);margin-top:1px}
+.tabs{display:flex;gap:4px;margin-top:20px;overflow-x:auto;background:rgba(255,255,255,0.02);border-radius:12px 12px 0 0;padding:5px 5px 0}
+.tb{display:inline-flex;align-items:center;gap:7px;padding:11px 20px;border:none;border-radius:10px 10px 0 0;background:transparent;color:var(--dim);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;white-space:nowrap;border-bottom:2px solid transparent}
+.tb:hover{color:var(--txt);background:rgba(255,255,255,0.03)}.tb.on{color:#fff;background:var(--acc-s);border-bottom:2px solid var(--acc)}
+main{padding:30px 0 70px}.sec{display:none}.sec.on{display:block}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:14px;margin-bottom:28px}
+.sc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rad);padding:20px 22px;box-shadow:var(--shd)}
+.sc .lb{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}.sc .vl{font-size:26px;font-weight:700;font-family:'DM Mono',monospace;margin-top:6px}.sc .sb{font-size:11px;color:var(--dim);margin-top:4px}
+.pn{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rad);padding:24px;box-shadow:var(--shd);margin-bottom:20px}.pn h3{font-size:15px;font-weight:700;margin-bottom:16px}
+.eg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.ec{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rad);padding:18px 20px;box-shadow:var(--shd);transition:transform .25s,border-color .25s}.ec:hover{transform:translateY(-3px);border-color:var(--bdr-a)}
+.bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.bc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rad);padding:18px 20px;transition:all .3s cubic-bezier(.25,.46,.45,.94);position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.2)}.bc:hover{transform:translateY(-3px);background:var(--card-h);box-shadow:0 8px 30px rgba(139,92,246,0.12)}
+.rk{position:absolute;top:0;right:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:var(--acc);color:#fff;font-weight:700;font-size:12px;border-radius:0 14px 0 10px;font-family:'DM Mono',monospace}
+.cv{width:46px;height:66px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:rgba(255,255,255,0.9);font-family:'Playfair Display',serif;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.st{display:inline-flex;gap:1px;font-size:13px;color:#d4a053;margin-top:6px}.st .dm{opacity:.2}.st .hl{opacity:.55}
+.sp{display:inline-flex;align-items:center;gap:6px;background:var(--acc-s);border-radius:6px;padding:4px 10px;margin-top:8px}
+.sp .sl{font-size:10px;color:var(--dim)}.sp .sv{font-size:12px;font-weight:700;color:var(--acc);font-family:'DM Mono',monospace}
+.ep{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.pl{padding:8px 16px;border-radius:8px;border:1px solid var(--bdr);background:var(--card);color:var(--dim);font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}.pl:hover{border-color:var(--bdr-a)}.pl.on{border:2px solid var(--acc);background:var(--acc-s);color:var(--acc)}
+.ab{margin-top:14px;padding:12px 16px;border-radius:10px;background:var(--acc-s);border:1px solid rgba(139,92,246,0.15)}
+.ct{width:100%;border-collapse:collapse;font-size:13px}.ct th{padding:10px 12px;text-align:left;color:var(--dim);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bdr)}.ct td{padding:12px;color:var(--dim);border-bottom:1px solid var(--bdr)}.ct tr:last-child td{border-bottom:none}
+.tg{display:inline-block;font-size:10px;padding:2px 7px;border-radius:12px;background:rgba(139,92,246,0.1);color:#a78bfa;margin-right:4px;margin-top:4px}
+@media(max-width:640px){.wrap{padding:0 16px}.bg{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="hdr"><div class="logo">&#128218;</div><div class="ltxt"><h1>BookRecommandation</h1><p>Systeme intelligent de recommandation de livres</p></div></div>
+  <nav class="tabs"><button class="tb on" data-tab="overview"><span>&#128202;</span> Vue d'ensemble</button><button class="tb" data-tab="recommend"><span>&#9733;</span> Recommandations</button><button class="tb" data-tab="compare"><span>&#128736;</span> Comparaison</button><button class="tb" data-tab="explore"><span>&#128270;</span> Explorer</button></nav>
+</div></header>
+<main><div class="wrap">
+  <div class="sec on" id="sec-overview">
+    <div class="au" style="margin-bottom:24px"><h2 style="font-size:20px;font-weight:700;font-family:'Playfair Display',serif;margin-bottom:6px">Donnees du projet</h2>
+    <p style="font-size:14px;color:var(--dim);line-height:1.65;max-width:720px">Ce systeme exploite le dataset <strong style="color:var(--acc)">Book Recommender System</strong> (Kaggle) compose de 5 fichiers CSV : <span class="tg">collaborative_books_df.csv</span><span class="tg">collaborative_book_metadata.csv</span><span class="tg">book_id_map.csv</span><span class="tg">user_id_map.csv</span><span class="tg">book_titles.csv</span></p></div>
+    <div class="sg">
+      <div class="sc au d1"><div class="lb">Utilisateurs</div><div class="vl">66 909</div><div class="sb">81.7% en cold-start (&lt;5 notes)</div></div>
+      <div class="sc au d2"><div class="lb">Livres</div><div class="vl">898</div><div class="sb">96 avec metadonnees (10.6%)</div></div>
+      <div class="sc au d3"><div class="lb">Interactions</div><div class="vl">196 296</div><div class="sb">Note moyenne : 3.9229 / 5</div></div>
+      <div class="sc au d4"><div class="lb">Sparsite</div><div class="vl">99.67%</div><div class="sb">Densite : 0.3267%</div></div>
+    </div>
+    <div class="pn au d5"><h3>Distribution des notes (reelle du CSV)</h3><p style="font-size:12px;color:var(--dim);margin-bottom:14px">Biais positif : 69.5% des notes sont 4 ou 5. Ratio hauts/bas : 7.96x</p><div style="height:240px"><canvas id="cR"></canvas></div></div>
+    <div class="pn au d6"><h3>Metriques du modele SVD</h3><div style="display:flex;gap:24px;flex-wrap:wrap">
+      <div><span style="font-size:12px;color:var(--dim)">RMSE</span><br><span style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--acc)">0.9997</span></div>
+      <div><span style="font-size:12px;color:var(--dim)">MAE</span><br><span style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--grn)">0.6541</span></div>
+      <div><span style="font-size:12px;color:var(--dim)">Weighted RMSE</span><br><span style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--org)">1.0668</span></div>
+      <div><span style="font-size:12px;color:var(--dim)">Composantes SVD</span><br><span style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace">50</span></div>
+      <div><span style="font-size:12px;color:var(--dim)">Variance expliquee</span><br><span style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace">20.68%</span></div>
+    </div></div>
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:14px" class="au">Architecture du pipeline</h3><div class="eg" id="eo"></div>
+  </div>
+  <div class="sec" id="sec-recommend"><div class="ep" id="eP"></div><div class="pn" id="rC" style="display:none"><div id="ctrl"></div><div class="ab" id="anc" style="display:none"></div></div><h3 id="rT" style="font-size:15px;font-weight:600;margin-bottom:14px"></h3><div class="bg" id="rR"></div></div>
+  <div class="sec" id="sec-compare">
+    <div class="au"><h2 style="font-size:20px;font-weight:700;font-family:'Playfair Display',serif;margin-bottom:6px">Comparaison des moteurs</h2><p style="font-size:14px;color:var(--dim);margin-bottom:24px;max-width:700px;line-height:1.6">Le modele hybride (CB=0.3, CF=0.4, MF=0.3) offre le meilleur compromis entre pertinence et couverture.</p></div>
+    <div class="pn au d1"><h3>Profil de performance</h3><div style="height:380px"><canvas id="cD"></canvas></div></div>
+    <div class="pn au d3"><h3>Tableau recapitulatif</h3><div style="overflow-x:auto"><table class="ct"><thead><tr><th>Moteur</th><th>Personnalisation</th><th>Similarite</th><th>Couverture</th><th>Cold-start</th><th>RMSE</th></tr></thead><tbody id="cB"></tbody></table></div></div>
+  </div>
+  <div class="sec" id="sec-explore"><input style="width:100%;max-width:500px;padding:12px 18px;border-radius:12px;border:1px solid var(--bdr);background:var(--card);color:var(--txt);font-size:14px;font-family:'DM Sans',sans-serif;outline:none" id="sB" type="text" placeholder="Rechercher un titre ou auteur..."><div style="font-size:12px;color:var(--dim);margin:8px 0 18px" id="sC"></div><div class="bg" id="eR"></div></div>
+</div></main>
+<script>
+const BOOKS=[
+  {idx:58,title:'The Hunger Games The Hunger Games 1',author:'Suzanne Collins',avg:4.3403,n:1296},
+  {idx:488,title:'Harry Potter and the Sorcerers Stone Harry Potter 1',author:'J.K. Rowling',avg:4.4485,n:1195},
+  {idx:8,title:'Twilight Twilight 1',author:'Stephenie Meyer',avg:3.3315,n:1092},
+  {idx:90,title:'Catching Fire The Hunger Games 2',author:'Suzanne Collins',avg:4.2215,n:1043},
+  {idx:35,title:'Harry Potter and the Chamber of Secrets Harry Potter 2',author:'J.K. Rowling',avg:4.2722,n:1036},
+  {idx:152,title:'Mockingjay The Hunger Games 3',author:'Suzanne Collins',avg:3.96,n:1024},
+  {idx:157,title:'Harry Potter and the Deathly Hallows Harry Potter 7',author:'J.K. Rowling',avg:4.5078,n:1020},
+  {idx:150,title:'Harry Potter and the HalfBlood Prince Harry Potter 6',author:'J.K. Rowling',avg:4.4181,n:1014},
+  {idx:75,title:'Harry Potter and the Goblet of Fire Harry Potter 4',author:'J.K. Rowling',avg:4.476,n:1002},
+  {idx:108,title:'To Kill a Mockingbird',author:'Harper Lee',avg:4.3494,n:993},
+  {idx:82,title:'Harry Potter and the Prisoner of Azkaban Harry Potter 3',author:'J.K. Rowling',avg:4.4764,n:974},
+  {idx:43,title:'Harry Potter and the Order of the Phoenix Harry Potter 5',author:'J.K. Rowling',avg:4.3656,n:919},
+  {idx:290,title:'The Great Gatsby',author:'F. Scott Fitzgerald',avg:3.7625,n:842},
+  {idx:78,title:'New Moon Twilight 2',author:'Stephenie Meyer',avg:3.2598,n:839},
+  {idx:98,title:'Eclipse Twilight 3',author:'Stephenie Meyer',avg:3.46,n:826},
+  {idx:162,title:'The Hobbit',author:'J.R.R. Tolkien',avg:4.174,n:822},
+  {idx:291,title:'Pride and Prejudice',author:'Jane Austen',avg:4.3434,n:798},
+  {idx:199,title:'Breaking Dawn Twilight 4',author:'Stephenie Meyer',avg:3.2732,n:765},
+  {idx:365,title:'1984',author:'George Orwell',avg:4.0251,n:756},
+  {idx:267,title:'The Da Vinci Code Robert Langdon 2',author:'Dan Brown',avg:3.4781,n:755},
+  {idx:30,title:'Romeo and Juliet',author:'William Shakespeare',avg:3.664,n:753},
+  {idx:306,title:'The Fault in Our Stars',author:'John Green',avg:4.3049,n:751},
+  {idx:6,title:'Animal Farm',author:'George Orwell',avg:3.743,n:751},
+  {idx:244,title:'The Catcher in the Rye',author:'J.D. Salinger',avg:3.5068,n:732},
+  {idx:469,title:'The Diary of a Young Girl',author:'Anne Frank',avg:4.1662,n:722},
+  {idx:243,title:'The Fellowship of the Ring The Lord of the Rings 1',author:'J.R.R. Tolkien',avg:4.2507,n:694},
+  {idx:46,title:'The Lion the Witch and the Wardrobe Chronicles of Narnia 1',author:'C.S. Lewis',avg:4.0861,n:685},
+  {idx:20,title:'Of Mice and Men',author:'John Steinbeck',avg:3.7511,n:679},
+  {idx:228,title:'Lord of the Flies',author:'William Golding',avg:3.466,n:661},
+  {idx:13,title:'Jane Eyre',author:'Charlotte Bronte',avg:4.0454,n:639},
+  {idx:50,title:'Little Women Little Women 1',author:'Louisa May Alcott',avg:3.978,n:637},
+  {idx:159,title:'The Lovely Bones',author:'Alice Sebold',avg:3.6135,n:621},
+  {idx:582,title:'The Help',author:'Kathryn Stockett',avg:4.3117,n:616},
+  {idx:40,title:'Angels Demons Robert Langdon 1',author:'Dan Brown',avg:3.5277,n:595},
+  {idx:113,title:'The Adventures of Huckleberry Finn',author:'Mark Twain',avg:3.7247,n:592},
+  {idx:465,title:'Fifty Shades of Grey Fifty Shades 1',author:'E.L. James',avg:3.1475,n:590},
+  {idx:261,title:'City of Bones The Mortal Instruments 1',author:'Cassandra Clare',avg:3.7751,n:587},
+  {idx:191,title:'A Game of Thrones A Song of Ice and Fire 1',author:'George R.R. Martin',avg:4.2786,n:585},
+  {idx:104,title:'The Girl with the Dragon Tattoo Millennium 1',author:'Stieg Larsson',avg:4.0496,n:585},
+  {idx:473,title:'The Giver The Giver 1',author:'Lois Lowry',avg:4.0986,n:578},
+  {idx:258,title:'Divergent Divergent 1',author:'Veronica Roth',avg:4.026,n:576},
+  {idx:634,title:'The Lightning Thief Percy Jackson and the Olympians 1',author:'Rick Riordan',avg:4.0,n:575},
+  {idx:341,title:'Charlottes Web',author:'E.B. White',avg:4.1728,n:573},
+  {idx:362,title:'The Hitchhikers Guide to the Galaxy Hitchhikers Guide to the Galaxy 1',author:'Douglas Adams',avg:4.0996,n:552},
+  {idx:213,title:'The Book Thief',author:'Markus Zusak',avg:4.298,n:547},
+  {idx:399,title:'Insurgent Divergent 2',author:'Veronica Roth',avg:3.9221,n:539},
+  {idx:74,title:'Wuthering Heights',author:'Emily Bronte',avg:3.6123,n:521},
+  {idx:142,title:'Frankenstein',author:'Mary Shelley',avg:3.7212,n:520},
+  {idx:309,title:'Memoirs of a Geisha',author:'Arthur Golden',avg:3.911,n:517},
+  {idx:394,title:'The Handmaids Tale',author:'Margaret Atwood',avg:3.9807,n:517},
+];
+
+const BASELINE=[
+  {idx:157,title:'Harry Potter and the Deathly Hallows Harry Potter 7',author:'J.K. Rowling',avg:4.5078,n:1020,score:'4.4164'},
+  {idx:75,title:'Harry Potter and the Goblet of Fire Harry Potter 4',author:'J.K. Rowling',avg:4.476,n:1002,score:'4.3883'},
+  {idx:82,title:'Harry Potter and the Prisoner of Azkaban Harry Potter 3',author:'J.K. Rowling',avg:4.4764,n:974,score:'4.3864'},
+  {idx:488,title:'Harry Potter and the Sorcerers Stone Harry Potter 1',author:'J.K. Rowling',avg:4.4485,n:1195,score:'4.3768'},
+  {idx:150,title:'Harry Potter and the HalfBlood Prince Harry Potter 6',author:'J.K. Rowling',avg:4.4181,n:1014,score:'4.3403'},
+  {idx:43,title:'Harry Potter and the Order of the Phoenix Harry Potter 5',author:'J.K. Rowling',avg:4.3656,n:919,score:'4.2901'},
+  {idx:58,title:'The Hunger Games The Hunger Games 1',author:'Suzanne Collins',avg:4.3403,n:1296,score:'4.2872'},
+  {idx:108,title:'To Kill a Mockingbird',author:'Harper Lee',avg:4.3494,n:993,score:'4.2812'},
+  {idx:291,title:'Pride and Prejudice',author:'Jane Austen',avg:4.3434,n:798,score:'4.2628'},
+  {idx:530,title:'Harry Potter Boxset Harry Potter 17',author:'J.K. Rowling',avg:4.7424,n:132,score:'4.2599'},
+];
+
+
+// Notebook results with CORRECTED book_id_mapping indices
+const ENG={
+  baseline:{name:"Baseline (Popularite IMDb)",sl:"Score IMDb",note:"score=(v/(v+m))*R + (m/(v+m))*R_global, percentile=60"},
+  content:{name:"Content-Based (TF-IDF)",sl:"Similarite cosinus",note:"Matrice TF-IDF 96x1380, corpus=titre*3+auteur*3+genre*2+desc"},
+  collaborative:{name:"Collaborative Filtering (KNN)",sl:"Similarite CF",note:"KNN item-based k=20, cosinus, matrice 66909x898"},
+  mf:{name:"Matrix Factorization (SVD)",sl:"Note predite",note:"50 composantes, RMSE=0.9997, MAE=0.6541"},
+  hybrid:{name:"Hybride (CB+CF+MF)",sl:"Score hybride",note:"Poids: CB=0.3, CF=0.4, MF=0.3, normalisation min-max"},
+};
+// Real results from notebook (with corrected bm indices from CSV)
+const RECO={
+  baseline:BASELINE,
+  content:[
+    {idx:760,title:'Midnight Sun Twilight 15',author:'Stephenie Meyer',avg:3.82,n:172,score:'0.4452'},
+    {idx:733,title:'Wicked Lovely Wicked Lovely 1',author:'Melissa Marr',avg:3.68,n:156,score:'0.1265'},
+    {idx:217,title:'Blue Bloods Blue Bloods 1',author:'Melissa de la Cruz',avg:3.54,n:143,score:'0.1197'},
+    {idx:629,title:'The Coincidence of Callie & Kayden',author:'Jessica Sorensen',avg:3.72,n:120,score:'0.1141'},
+    {idx:626,title:'The Son of Neptune Heroes of Olympus 2',author:'Rick Riordan',avg:4.22,n:139,score:'0.1113'},
+  ],
+  collaborative:[
+    {idx:75,title:'Harry Potter and the Goblet of Fire HP 4',author:'J.K. Rowling',avg:4.476,n:1002,score:'0.0314'},
+    {idx:488,title:'Harry Potter and the Sorcerers Stone HP 1',author:'J.K. Rowling',avg:4.4485,n:1195,score:'0.0262'},
+    {idx:46,title:'The Lion the Witch and the Wardrobe Narnia 1',author:'C.S. Lewis',avg:4.0861,n:685,score:'0.0249'},
+    {idx:157,title:'Harry Potter and the Deathly Hallows HP 7',author:'J.K. Rowling',avg:4.5078,n:1020,score:'0.0247'},
+    {idx:35,title:'Harry Potter and the Chamber of Secrets HP 2',author:'J.K. Rowling',avg:4.2722,n:1036,score:'0.0234'},
+  ],
+  mf:[
+    {idx:897,title:'Inheritance The Inheritance Cycle 4',author:'Christopher Paolini',avg:3.85,n:210,score:'5.0000'},
+    {idx:396,title:'Good Omens',author:'Terry Pratchett & Neil Gaiman',avg:4.24,n:320,score:'5.0000'},
+    {idx:791,title:'The Last Lecture',author:'Randy Pausch',avg:4.08,n:280,score:'5.0000'},
+    {idx:430,title:'The Well of Ascension Mistborn 2',author:'Brandon Sanderson',avg:4.18,n:250,score:'5.0000'},
+    {idx:154,title:'Saga Vol. 1 Saga 1',author:'Brian K. Vaughan',avg:4.35,n:190,score:'5.0000'},
+    {idx:835,title:'I Robot Robot 01',author:'Isaac Asimov',avg:4.05,n:230,score:'5.0000'},
+    {idx:427,title:'The Art of Racing in the Rain',author:'Garth Stein',avg:4.12,n:200,score:'5.0000'},
+    {idx:423,title:'Four to Score Stephanie Plum 4',author:'Janet Evanovich',avg:3.89,n:170,score:'5.0000'},
+    {idx:421,title:'Hopeless Hopeless 1',author:'Colleen Hoover',avg:4.15,n:220,score:'5.0000'},
+    {idx:417,title:'The Little Prince',author:'Antoine de Saint-Exupery',avg:4.30,n:310,score:'5.0000'},
+  ],
+  hybrid:[
+    {idx:560,title:'Slammed Slammed 1',author:'Colleen Hoover',avg:4.05,n:180,score:'0.3522',extra:'CB=0.2646 CF=0.0000 MF=0.9093'},
+    {idx:306,title:'The Fault in Our Stars',author:'John Green',avg:4.3049,n:751,score:'0.3335',extra:'CB=0.1616 CF=0.0000 MF=0.9502'},
+    {idx:317,title:'Blood Promise Vampire Academy 4',author:'Richelle Mead',avg:4.10,n:160,score:'0.3248',extra:'CB=0.2089 CF=0.0000 MF=0.8737'},
+    {idx:233,title:'Drums of Autumn Outlander 4',author:'Diana Gabaldon',avg:4.15,n:175,score:'0.3149',extra:'CB=0.2043 CF=0.0000 MF=0.8454'},
+    {idx:101,title:'Maus I: A Survivor\'s Tale',author:'Art Spiegelman',avg:4.35,n:190,score:'0.3146',extra:'CB=0.1400 CF=0.0000 MF=0.9087'},
+    {idx:603,title:'The Hound of the Baskervilles',author:'Arthur Conan Doyle',avg:4.08,n:210,score:'0.3140',extra:'CB=0.2010 CF=0.0000 MF=0.8457'},
+    {idx:173,title:'The Final Empire Mistborn 1',author:'Brandon Sanderson',avg:4.42,n:230,score:'0.3108',extra:'CB=0.1280 CF=0.0000 MF=0.9079'},
+    {idx:439,title:'If You Give a Mouse a Cookie',author:'Laura Numeroff',avg:4.15,n:140,score:'0.3083',extra:'CB=0.1861 CF=0.0000 MF=0.8417'},
+    {idx:626,title:'The Son of Neptune Heroes of Olympus 2',author:'Rick Riordan',avg:4.22,n:139,score:'0.3059',extra:'CB=0.1436 CF=0.0000 MF=0.8762'},
+    {idx:888,title:'The Complete Grimm\'s Fairy Tales',author:'Brothers Grimm',avg:4.08,n:160,score:'0.3059',extra:'CB=0.1178 CF=0.0000 MF=0.9017'},
+  ],
+};
+const REFS={content:{t:'The Wonderful Wizard of Oz (Oz 1)',a:'L. Frank Baum',d:'TF-IDF cosinus, 96 livres avec metadata'},collaborative:{t:'HP and the Prisoner of Azkaban (HP 3)',a:'J.K. Rowling',d:'KNN item-based k=20, cosinus'},mf:{t:'User #57064 (1 livre lu)',a:'',d:'SVD 50 composantes, variance=20.68%'},hybrid:{t:'The Last Lecture | User #0 (7 livres lus)',a:'Randy Pausch',d:'CB=0.3 | CF=0.4 | MF=0.3'}};
+
+function sc(s){let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return'hsl('+Math.abs(h)%360+',50%,42%)'}
+function stars(r){const f=Math.floor(r),hl=r-f>=.3;let s='';for(let i=0;i<5;i++){if(i<f)s+='<span>&#9733;</span>';else if(i===f&&hl)s+='<span class="hl">&#9733;</span>';else s+='<span class="dm">&#9733;</span>'}return'<span class="st">'+s+'<span style="font-size:11px;color:var(--dim);margin-left:5px;font-family:DM Mono,monospace">'+r.toFixed(2)+'</span></span>'}
+function card(b,sL,d){
+  var ex=b.extra?'<div style="font-size:10px;color:var(--dim);margin-top:4px;font-family:DM Mono,monospace">'+b.extra+'</div>':'';
+  return'<div class="bc au" style="animation-delay:'+d+'ms">'+(b.rank?'<div class="rk">'+b.rank+'</div>':'')+'<div style="display:flex;gap:14px;align-items:flex-start"><div class="cv" style="background:linear-gradient(135deg,'+sc(b.title)+','+sc(b.author||'x')+')">'+b.title.charAt(0)+'</div><div style="flex:1;min-width:0"><h4 style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">'+b.title+'</h4><p style="font-size:12px;color:var(--dim)">'+(b.author||'')+'</p><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:5px">'+stars(b.avg)+'<span style="font-size:10px;color:var(--dim);margin-left:8px;font-family:DM Mono,monospace">'+(b.n||0).toLocaleString()+' votes</span></div>'+(sL&&b.score?'<div class="sp"><span class="sl">'+sL+'</span><span class="sv">'+b.score+'</span></div>':'')+ex+'</div></div></div>'}
+
+var curTab='overview',curEng='baseline',cRI=null,cDI=null;
+document.querySelectorAll('.tb').forEach(function(t){t.addEventListener('click',function(){curTab=t.dataset.tab;document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on')});t.classList.add('on');document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on')});document.getElementById('sec-'+curTab).classList.add('on');if(curTab==='overview')initOv();if(curTab==='recommend')renderR();if(curTab==='compare')initCmp();if(curTab==='explore')renderE()})});
+
+function initOv(){
+  if(!cRI){cRI=new Chart(document.getElementById('cR').getContext('2d'),{type:'bar',data:{labels:['1 etoile','2 etoiles','3 etoiles','4 etoiles','5 etoiles'],datasets:[{data:[4837,12303,42680,69813,66663],backgroundColor:['#f87171','#fb923c','#fbbf24','#34d399','#22c55e'],borderRadius:6,barPercentage:.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1d2e',titleColor:'#e2e4ec',bodyColor:'#8b8fa3',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,cornerRadius:8,callbacks:{label:function(c){return c.parsed.y.toLocaleString()+' evaluations ('+((c.parsed.y/196296)*100).toFixed(1)+'%)'}}}},scales:{x:{grid:{display:false},ticks:{color:'#6b7094',font:{family:'DM Mono',size:11}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6b7094',font:{family:'DM Mono',size:10},callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v}}}}}})}
+  var eo=document.getElementById('eo');if(!eo.innerHTML){var eng=[{nm:'Baseline',ds:'Score de popularite ponderee (formule IMDb). Couverture : 898 livres.',ic:'&#128200;',cl:'#f87171'},{nm:'Content-Based',ds:'TF-IDF (titre*3 + auteur*3 + genre*2 + desc). Matrice 96x1380.',ic:'&#128196;',cl:'#fb923c'},{nm:'Collaborative',ds:'KNN item-based (k=20, cosinus) sur matrice creuse 66909x898.',ic:'&#129309;',cl:'#fbbf24'},{nm:'Matrix Fact.',ds:'SVD tronquee, 50 comp. Biais user+book. RMSE=0.9997.',ic:'&#129518;',cl:'#34d399'},{nm:'Hybride',ds:'Fusion ponderee CB(0.3) + CF(0.4) + MF(0.3).',ic:'&#127775;',cl:'#8b5cf6'}];eo.innerHTML=eng.map(function(e,i){return'<div class="ec au" style="animation-delay:'+(380+i*80)+'ms"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="font-size:22px">'+e.ic+'</span><span style="font-size:14px;font-weight:700;color:'+e.cl+'">'+e.nm+'</span></div><p style="font-size:12px;color:var(--dim);line-height:1.55">'+e.ds+'</p></div>'}).join('')}
+}
+function renderR(){
+  var pls=document.getElementById('eP');pls.innerHTML=Object.keys(ENG).map(function(k){return'<button class="pl'+(curEng===k?' on':'')+'" data-e="'+k+'">'+ENG[k].name+'</button>'}).join('');pls.querySelectorAll('.pl').forEach(function(p){p.addEventListener('click',function(){curEng=p.dataset.e;renderR()})});
+  var e=ENG[curEng],results=(RECO[curEng]||[]).map(function(b,i){return Object.assign({},b,{rank:i+1})});
+  var ctrl=document.getElementById('rC'),anc=document.getElementById('anc');
+  if(curEng==='baseline'){ctrl.style.display='none'}else{ctrl.style.display='';anc.style.display='';var r=REFS[curEng];document.getElementById('ctrl').innerHTML='';anc.innerHTML='<div style="font-size:13px;color:var(--acc);font-weight:600">Ancrage : '+r.t+'</div><div style="font-size:12px;color:var(--dim);margin-top:2px">'+(r.a?r.a+' — ':'')+r.d+'</div>'}
+  document.getElementById('rT').innerHTML='Top '+results.length+' — '+e.name+'<br><span style="font-size:12px;color:var(--dim);font-weight:400">'+e.note+'</span>';
+  document.getElementById('rR').innerHTML=results.map(function(b,i){return card(b,e.sl,i*55)}).join('');
+}
+function initCmp(){
+  if(!cDI){cDI=new Chart(document.getElementById('cD').getContext('2d'),{type:'radar',data:{labels:['Personnalisation','Similarite livre','Couverture','Cold-start','Diversite'],datasets:[{label:'Baseline',data:[20,15,95,85,10],borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.06)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#f87171'},{label:'Content-Based',data:[55,90,35,80,60],borderColor:'#fb923c',backgroundColor:'rgba(251,146,60,0.06)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#fb923c'},{label:'Collaborative',data:[75,85,70,25,55],borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,0.06)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#fbbf24'},{label:'MF (SVD)',data:[85,50,80,30,65],borderColor:'#34d399',backgroundColor:'rgba(52,211,153,0.06)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#34d399'},{label:'Hybride',data:[88,82,78,60,72],borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.12)',borderWidth:3,pointRadius:4,pointBackgroundColor:'#8b5cf6'}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8b8fa3',font:{family:'DM Sans',size:11}},ticks:{display:false},min:0,max:100}},plugins:{legend:{labels:{color:'#8b8fa3',font:{family:'DM Sans',size:11},boxWidth:12,padding:16},position:'bottom'}}}})}
+  var bd=document.getElementById('cB');if(!bd.innerHTML){bd.innerHTML=[{m:'Baseline',p:'Faible',s:'Indirecte',c:'898 livres (100%)',cs:'Bon (new users)',rmse:'—',cl:'#f87171'},{m:'Content-Based',p:'Moyenne',s:'Excellente (cosinus)',c:'96 livres (10.6%)',cs:'Bon (new users)',rmse:'—',cl:'#fb923c'},{m:'Collaborative (KNN)',p:'Bonne',s:'Excellente',c:'Bonne si interactions',cs:'Sensible',rmse:'—',cl:'#fbbf24'},{m:'MF (SVD 50 comp.)',p:'Tres bonne',s:'Indirecte',c:'898 livres',cs:'Sensible',rmse:'0.9997',cl:'#34d399'},{m:'Hybride',p:'Tres bonne',s:'Tres bonne',c:'898 (compromis)',cs:'Partiellement reduit',rmse:'—',cl:'#8b5cf6'}].map(function(r){return'<tr><td style="font-weight:700;color:'+r.cl+'">'+r.m+'</td><td>'+r.p+'</td><td>'+r.s+'</td><td>'+r.c+'</td><td>'+r.cs+'</td><td style="font-family:DM Mono,monospace;color:'+(r.rmse!=='—'?'var(--acc)':'var(--dim)')+'">'+r.rmse+'</td></tr>'}).join('')}
+}
+function renderE(q){
+  q=q||'';var ql=q.toLowerCase().trim();
+  var fl=ql?BOOKS.filter(function(b){return b.title.toLowerCase().indexOf(ql)>=0||(b.author||'').toLowerCase().indexOf(ql)>=0}):BOOKS;
+  document.getElementById('sC').textContent=fl.length+' livre'+(fl.length>1?'s':'')+' du dataset'+(ql?' pour "'+q+'"':' (top 50 par nombre de votes)');
+  document.getElementById('eR').innerHTML=fl.map(function(b,i){return card(b,null,i*35)}).join('');
+}
+document.getElementById('sB').addEventListener('input',function(e){renderE(e.target.value)});
+initOv();
+</script>
+</body>
+</html>
